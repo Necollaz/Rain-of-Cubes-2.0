@@ -41,7 +41,7 @@ public class Cube : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.TryGetComponent(out Platform platform) && _hasTouchedPlatform == false)
+        if (collision.collider.TryGetComponent(out Platform _) && _hasTouchedPlatform == false)
         {
             _hasTouchedPlatform = true;
             _renderer.material.color = Color.blue;

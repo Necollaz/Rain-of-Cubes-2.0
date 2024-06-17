@@ -1,16 +1,25 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(SphereCollider), typeof(Rigidbody), typeof(MeshRenderer))]
 public class Bomb : MonoBehaviour
 {
+    private const string ModeProperty = "_Mode";
+    private const string SrcBlendProperty = "_SrcBlend";
+    private const string DstBlendProperty = "_DstBlend";
+    private const string ZWriteProperty = "_ZWrite";
+    private const string AlphaTestOnKeyword = "_ALPHATEST_ON";
+    private const string AlphaBlendOnKeyword = "_ALPHABLEND_ON";
+    private const string AlphaPremultiplyOnKeyword = "_ALPHAPREMULTIPLY_ON";
+    private const int RenderQueueTransparent = 3000;
+
     [SerializeField] private float _fadeDuration = 2f;
 
     private MeshRenderer _renderer;
     private Material _material;
 
-    public delegate void BombExploded(Bomb bomb);
-    public event BombExploded OnBombExploded;
+    public event Action<Bomb> BombExploded;
 
     private void Awake()
     {
@@ -20,16 +29,25 @@ public class Bomb : MonoBehaviour
 
     private void OnEnable()
     {
-        _material.SetFloat("_Mode", 2);
-        _material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        _material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        _material.SetInt("_ZWrite", 0);
-        _material.DisableKeyword("_ALPHATEST_ON");
-        _material.EnableKeyword("_ALPHABLEND_ON");
-        _material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-        _material.renderQueue = 3000;
-
+        ConfigureMaterialForTransparency();
         StartCoroutine(FadeOutAndExplode());
+    }
+
+    public Material GetMaterial()
+    {
+        return _material;
+    }
+
+    private void ConfigureMaterialForTransparency()
+    {
+        _material.SetFloat(ModeProperty, 2);
+        _material.SetInt(SrcBlendProperty, (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        _material.SetInt(DstBlendProperty, (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        _material.SetInt(ZWriteProperty, 0);
+        _material.DisableKeyword(AlphaTestOnKeyword);
+        _material.EnableKeyword(AlphaBlendOnKeyword);
+        _material.DisableKeyword(AlphaPremultiplyOnKeyword);
+        _material.renderQueue = RenderQueueTransparent;
     }
 
     private IEnumerator FadeOutAndExplode()
@@ -45,6 +63,6 @@ public class Bomb : MonoBehaviour
             yield return null;
         }
 
-        OnBombExploded?.Invoke(this);
+        BombExploded?.Invoke(this);
     }
 }

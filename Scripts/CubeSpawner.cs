@@ -1,21 +1,22 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
-public class Spawner : MonoBehaviour
+public class CubeSpawner : MonoBehaviour
 {
     [SerializeField] private Cube _cubePrefab;
-    [SerializeField] private Bomb _bombPrefab;
     [SerializeField] private Transform _spawnPoint;
-    [SerializeField] private Explosion _explosion;
-    [SerializeField] private StatsDisplay _stats;
     [SerializeField] private float _repeatRate = 1f;
     [SerializeField] private int _poolCapacity = 5;
     [SerializeField] private int _poolMaxSize = 20;
 
     private Pool<Cube> _cubePool;
-    private Pool<Bomb> _bombPool;
-    private int _totalCubesCreated;
-    private int _totalBombsCreated;
+    public event Action<Cube> CubeReleased;
+    public event Action CubeCreated;
+    private int _totalCreated;
+
+    public int TotalCreated => _totalCreated;
+
 
     private void Awake()
     {
@@ -24,50 +25,43 @@ public class Spawner : MonoBehaviour
 
     private void Start()
     {
-        UpdateStatsDisplay();
         StartCoroutine(SpawnCubeCoroutine());
+    }
+
+    public int GetCountActive()
+    {
+        return _cubePool.CountActive;
     }
 
     public void ReleaseCube(Cube cube)
     {
-        CreateBombInstance(cube.transform.position);
         _cubePool.Release(cube);
-        UpdateStatsDisplay();
+        CubeReleased?.Invoke(cube);
     }
 
-    private void CreateBombInstance(Vector3 position)
+    public Cube GetCube()
     {
-        Bomb bomb = _bombPool.Get();
-        bomb.transform.position = position;
-        bomb.OnBombExploded += ExplodeBomb;
-        bomb.gameObject.SetActive(true);
-        _totalBombsCreated++;
-        UpdateStatsDisplay();
-    }
-
-    private void ExplodeBomb(Bomb bomb)
-    {
-        _explosion.Explode(bomb);
-        Destroy(bomb.gameObject);
-        UpdateStatsDisplay();
+        var cube = _cubePool.Get();
+        CubeCreated?.Invoke();
+        return cube;
     }
 
     private void InitializePool()
     {
         _cubePool = new Pool<Cube>(CreateCubeInstance, PrepareCube, cube => cube.gameObject.SetActive(false), _poolCapacity, _poolMaxSize);
-        _bombPool = new Pool<Bomb>(() => Instantiate(_bombPrefab), null, null, _poolCapacity, _poolMaxSize);
     }
 
     private Cube CreateCubeInstance()
     {
         Cube cube = Instantiate(_cubePrefab);
         cube.OnReleased += ReleaseCube;
-        _totalCubesCreated++;
         return cube;
     }
 
     private void PrepareCube(Cube cube)
     {
+        _totalCreated++;
+        CubeCreated?.Invoke();
         cube.transform.position = _spawnPoint.transform.position;
         cube.SetInitialVelocity(Vector3.down);
         cube.gameObject.SetActive(true);
@@ -78,13 +72,7 @@ public class Spawner : MonoBehaviour
         while (true)
         {
             _cubePool.Get();
-            UpdateStatsDisplay();
             yield return new WaitForSeconds(_repeatRate);
         }
-    }
-
-    private void UpdateStatsDisplay()
-    {
-        _stats.UpdateStats(_totalCubesCreated, _totalBombsCreated, _cubePool.CountActive, _cubePool.CountInactive);
     }
 }

@@ -13,12 +13,13 @@ public class Explosion : MonoBehaviour
         float explosionForce = CalculateForce(bomb);
         float explosionRadius = CalculateRadius(bomb);
         Collider[] colliders = Physics.OverlapSphere(explosionPosition, explosionRadius);
+        Material bombMaterial = bomb.GetMaterial();
+        Color color = bombMaterial.color;
 
-        while (bomb.GetComponent<Renderer>().material.color.a > 0)
+        while (color.a > 0)
         {
-            Color color = bomb.GetComponent<Renderer>().material.color;
             color.a -= Time.deltaTime * _transparencySpeed;
-            bomb.GetComponent<Renderer>().material.color = color;
+            bombMaterial.color = color;
             yield return null;
         }
 
