@@ -21,5 +21,4 @@ public class SpawnController : MonoBehaviour
     {
         _bombSpawner.CreateBomb(cube.transform.position);
     }
-
 }

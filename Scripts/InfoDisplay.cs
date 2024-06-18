@@ -27,7 +27,9 @@ public class InfoDisplay : MonoBehaviour
         _bombSpawner.BombCreated -= UpdateBombInfo;
     }
 
-    private void UpdateCubeInfo() => _cubeInfoText.text = $"Создано кубов: {_cubeSpawner.TotalCreated}\nАктивные кубы: {_cubeSpawner.GetCountActive()}";
+    private void UpdateCubeInfo() => _cubeInfoText.text = $"Создано кубов: {_cubeSpawner.TotalCreated}" +
+        $"\nАктивные кубы: {_cubeSpawner.GetCountActive()}";
 
-    private void UpdateBombInfo() => _bombInfoText.text = $"Создано бомб: {_bombSpawner.TotalCreated}\nАктивные бомбы: {_bombSpawner.CountActive}";
+    private void UpdateBombInfo() => _bombInfoText.text = $"Создано бомб: {_bombSpawner.TotalCreated}" +
+        $"\nАктивные бомбы: {_bombSpawner.CountActive}";
 }
