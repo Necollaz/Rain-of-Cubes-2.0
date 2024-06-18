@@ -1,11 +1,19 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class Explosion : MonoBehaviour
 {
     [SerializeField] private float _force = 200f;
     [SerializeField] private float _radius = 50f;
     [SerializeField] private float _transparencySpeed = 1.5f;
+
+    private Pool<Bomb> _bombPool;
+
+    public void Initialize(Pool<Bomb> bombPool)
+    {
+        _bombPool = bombPool;
+    }
 
     private IEnumerator ExplodeCoroutine(Bomb bomb)
     {
@@ -31,7 +39,7 @@ public class Explosion : MonoBehaviour
             }
         }
 
-        Destroy(bomb.gameObject);
+        _bombPool.Release(bomb);
     }
 
     public void Explode(Bomb bomb)

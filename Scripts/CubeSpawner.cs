@@ -11,12 +11,11 @@ public class CubeSpawner : MonoBehaviour
     [SerializeField] private int _poolMaxSize = 20;
 
     private Pool<Cube> _cubePool;
-    public event Action<Cube> CubeReleased;
     public event Action CubeCreated;
+    public event Action<Cube> CubeReleased;
     private int _totalCreated;
 
     public int TotalCreated => _totalCreated;
-
 
     private void Awake()
     {

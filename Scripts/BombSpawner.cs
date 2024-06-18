@@ -10,25 +10,35 @@ public class BombSpawner : MonoBehaviour
 
     private Pool<Bomb> _bombPool;
     public event Action BombCreated;
+    public event Action BombExploded;
+
     private int _totalCreated;
+    private int _activeBombs;
 
     public int TotalCreated => _totalCreated;
-    public int CountActive => _bombPool.CountActive;
+    public int ActiveBombs => _activeBombs;
 
     private void Awake()
     {
         InitializePool();
+        _explosion.Initialize(_bombPool);
     }
 
     private void InitializePool()
     {
-        _bombPool = new Pool<Bomb>(() => Instantiate(_bombPrefab), null, bomb => bomb.gameObject.SetActive(false), _poolCapacity, _poolMaxSize);
+        _bombPool = new Pool<Bomb>(
+            () => Instantiate(_bombPrefab),
+            bomb => bomb.gameObject.SetActive(true),
+            bomb => bomb.gameObject.SetActive(false),
+            _poolCapacity,
+            _poolMaxSize);
     }
 
     public void CreateBomb(Vector3 position)
     {
         Bomb bomb = _bombPool.Get();
         _totalCreated++;
+        _activeBombs++;
         BombCreated?.Invoke();
         bomb.transform.position = position;
         bomb.BombExploded += ExplodeBomb;
@@ -38,6 +48,8 @@ public class BombSpawner : MonoBehaviour
     private void ExplodeBomb(Bomb bomb)
     {
         _explosion.Explode(bomb);
-        Destroy(bomb.gameObject);
+        bomb.BombExploded -= ExplodeBomb;
+        _activeBombs--;
+        BombExploded?.Invoke();
     }
 }
