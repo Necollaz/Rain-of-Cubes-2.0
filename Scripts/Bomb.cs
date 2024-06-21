@@ -19,7 +19,7 @@ public class Bomb : MonoBehaviour
     private MeshRenderer _renderer;
     private Material _material;
 
-    public event Action<Bomb> BombExploded;
+    public event Action<Bomb> Exploded;
 
     private void Awake()
     {
@@ -30,7 +30,7 @@ public class Bomb : MonoBehaviour
     private void OnEnable()
     {
         ConfigureMaterialForTransparency();
-        StartCoroutine(FadeOutAndExplode());
+        StartCoroutine(FadeOut());
     }
 
     public Material GetMaterial()
@@ -50,7 +50,7 @@ public class Bomb : MonoBehaviour
         _material.renderQueue = RenderQueueTransparent;
     }
 
-    private IEnumerator FadeOutAndExplode()
+    private IEnumerator FadeOut()
     {
         float timer = 0f;
         Color startColor = _renderer.material.color;
@@ -63,6 +63,6 @@ public class Bomb : MonoBehaviour
             yield return null;
         }
 
-        BombExploded?.Invoke(this);
+        Exploded?.Invoke(this);
     }
 }

@@ -14,6 +14,9 @@ public class Cube : MonoBehaviour
 
     public event System.Action<Cube> OnReleased;
 
+    public static int TotalBlueCubes { get; private set; }
+    public static int ActiveBlueCubes { get; private set; }
+
     private void Awake()
     {
         _renderer = GetComponent<MeshRenderer>();
@@ -22,7 +25,7 @@ public class Cube : MonoBehaviour
 
     private void OnEnable()
     {
-        ResetCube();
+        Reset();
     }
 
     public void SetInitialVelocity(Vector3 velocity)
@@ -30,7 +33,7 @@ public class Cube : MonoBehaviour
         _rigidbody.velocity = velocity;
     }
 
-    private void ResetCube()
+    private void Reset()
     {
         _hasTouchedPlatform = false;
         _rigidbody.velocity = Vector3.zero;
@@ -46,6 +49,8 @@ public class Cube : MonoBehaviour
             _hasTouchedPlatform = true;
             _renderer.material.color = Color.blue;
             StartDisappearing();
+            TotalBlueCubes++;
+            ActiveBlueCubes++;
         }
     }
 
@@ -63,5 +68,10 @@ public class Cube : MonoBehaviour
     {
         yield return new WaitForSeconds(Random.Range(_minTimeLife, _maxTimeLife));
         OnReleased?.Invoke(this);
+
+        if (_renderer.material.color == Color.blue)
+        {
+            ActiveBlueCubes--;
+        }
     }
 }

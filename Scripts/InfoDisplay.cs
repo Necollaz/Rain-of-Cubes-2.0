@@ -14,8 +14,8 @@ public class InfoDisplay : MonoBehaviour
         _cubeSpawner = cubeSpawner;
         _bombSpawner = bombSpawner;
 
-        _cubeSpawner.CubeCreated += UpdateCubeInfo;
-        _bombSpawner.BombCreated += UpdateBombInfo;
+        _cubeSpawner.Created += UpdateCubeInfo;
+        _bombSpawner.Created += UpdateBombInfo;
         _bombSpawner.BombExploded += UpdateBombInfo;
 
         UpdateCubeInfo();
@@ -24,8 +24,8 @@ public class InfoDisplay : MonoBehaviour
 
     private void OnDestroy()
     {
-        _cubeSpawner.CubeCreated -= UpdateCubeInfo;
-        _bombSpawner.BombCreated -= UpdateBombInfo;
+        _cubeSpawner.Created -= UpdateCubeInfo;
+        _bombSpawner.Created -= UpdateBombInfo;
         _bombSpawner.BombExploded -= UpdateBombInfo;
     }
 
