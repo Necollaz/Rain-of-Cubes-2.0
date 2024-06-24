@@ -14,6 +14,10 @@ public class BombSpawner : Spawner<Bomb>
     protected override void Awake()
     {
         base.Awake();
+    }
+
+    private void Start()
+    {
         _explosion.Initialize(_pool);
     }
 

@@ -6,12 +6,17 @@ public class CubeSpawner : Spawner<Cube>
 {
     [SerializeField] private Transform _spawnPoint;
     [SerializeField] private float _repeatRate = 1f;
+    [SerializeField] private BombSpawner _bombSpawner;
 
     public event Action<Cube> CubeReleased;
 
     protected override void Awake()
     {
         base.Awake();
+    }
+
+    private void Start()
+    {
         StartCoroutine(SpawnCoroutine());
     }
 
@@ -39,11 +44,10 @@ public class CubeSpawner : Spawner<Cube>
 
     private void Prepare(Cube cube)
     {
-        _totalCreated++;
-        Created?.Invoke();
         cube.transform.position = _spawnPoint.position;
         cube.SetInitialVelocity(Vector3.down);
         cube.gameObject.SetActive(true);
+        cube.OnReleased += HandleCubeReleased;
     }
 
     private IEnumerator SpawnCoroutine()
@@ -52,6 +56,18 @@ public class CubeSpawner : Spawner<Cube>
         {
             Get(_spawnPoint.position);
             yield return new WaitForSeconds(_repeatRate);
+        }
+    }
+
+    private void HandleCubeReleased(Cube cube)
+    {
+        if (cube.gameObject.activeInHierarchy)
+        {
+            if (cube.TryGetComponent(out Renderer renderer) && renderer.material.color == Color.blue)
+            {
+                cube.gameObject.SetActive(false);
+                _bombSpawner.Get(cube.transform.position);
+            }
         }
     }
 }

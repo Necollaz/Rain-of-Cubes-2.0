@@ -28,6 +28,14 @@ public class Cube : MonoBehaviour
         Reset();
     }
 
+    private void OnDisable()
+    {
+        if (_renderer.material.color == Color.blue)
+        {
+            ActiveBlueCubes--;
+        }
+    }
+
     public void SetInitialVelocity(Vector3 velocity)
     {
         _rigidbody.velocity = velocity;
@@ -68,10 +76,5 @@ public class Cube : MonoBehaviour
     {
         yield return new WaitForSeconds(Random.Range(_minTimeLife, _maxTimeLife));
         OnReleased?.Invoke(this);
-
-        if (_renderer.material.color == Color.blue)
-        {
-            ActiveBlueCubes--;
-        }
     }
 }
